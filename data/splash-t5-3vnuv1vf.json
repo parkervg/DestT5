@@ -1,0 +1,1053 @@
+[
+  {
+    "question": "What is the episode for the TV series named \"Sky Radio\"?",
+    "db_id": "tvshow",
+    "gold_parse": "select tv_series.episode from tv_channel join tv_series on tv_channel.id = tv_series.channel where tv_channel.series_name = 'Sky Radio'",
+    "predicted_parse_with_values": "select tv_series.episode from tv_series join tv_channel on tv_series.id = tv_channel.tv_channel where tv_channel.series_name = 'Sky Radio'",
+    "predicted_parse_explanation": "",
+    "feedback": "The join needs to be on id and channel from tv_channel and tv_series, respectively"
+  },
+  {
+    "question": "For the cars with 4 cylinders, which model has the largest horsepower?",
+    "db_id": "car_1",
+    "gold_parse": "select car_names.model from car_names join cars_data on car_names.makeid = cars_data.id where cars_data.cylinders = 4 order by cars_data.horsepower desc limit 1",
+    "predicted_parse_with_values": "select model_list.model from cars_data join model_list on cars_data.id = model_list.modelid where cars_data.cylinders = 4",
+    "predicted_parse_explanation": [
+      "For each row in cars_data table, find the corresponding rows in model_list table",
+      "find Model of the results of step 1 whose Cylinders equals 4.0"
+    ],
+    "feedback": "Return the model from car_names with the highest value of horsepower"
+  },
+  {
+    "question": "Which language is the most popular in Aruba?",
+    "db_id": "world_1",
+    "gold_parse": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Aruba' order by percentage desc limit 1",
+    "predicted_parse_with_values": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Aruba' group by countrylanguage.language order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "only keep the results of step 1 whose Name equals \"Aruba\"",
+      "find the number of rows of each value of Language in the results of step 2",
+      "find Language of the results of step 2 with largest value in the results of step 3"
+    ],
+    "feedback": "Order by percentage, not 'count(*)'"
+  },
+  {
+    "question": "Which countries in europe have at least 3 car manufacturers?",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryname from countries join continents on countries.continent = continents.contid join car_makers on countries.countryid = car_makers.country where continents.continent = 'europe' group by countries.countryname having count ( * ) >= 3",
+    "predicted_parse_with_values": "select countries.countryname from countries join car_makers on countries.countryid = car_makers.country where countries.continent = 'europe' group by countries.countryname having count ( * ) >= 3",
+    "predicted_parse_explanation": [
+      "For each row in countries table, find the corresponding rows in car_makers table",
+      "find rows in the results of step 1 whose Continent equals \"europe\"",
+      "find the number of rows of each value of CountryName in step 1 rsults",
+      "find CountryName in the results of step 1 whose corresponding value in step 2 is greater than or equals 3.0"
+    ],
+    "feedback": "In step 2, we should check the continent field from the continents table to be sure the value is 'Europe'."
+  },
+  {
+    "question": "What are the names of nations speak both English and French?",
+    "db_id": "world_1",
+    "gold_parse": "select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' intersect select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'French'",
+    "predicted_parse_with_values": "select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'English' intersect select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'French'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace all instances of 'countrycode' from country table with 'code'"
+  },
+  {
+    "question": "What is the degree summary name that has the most number of students enrolled?",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select degree_programs.degree_summary_name from degree_programs join student_enrolment on degree_programs.degree_program_id = student_enrolment.degree_program_id group by degree_programs.degree_summary_name order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select course_programs.degree_summary_name from course_programs join student_enrolment on course_programs.degree_program_id = student_enrolment.degree_program_id group by course_programs.degree_program_id order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace course_programs table with degree_programs"
+  },
+  {
+    "question": "How many car makers are there in france?",
+    "db_id": "car_1",
+    "gold_parse": "select count ( * ) from car_makers join countries on car_makers.country = countries.countryid where countries.countryname = 'france'",
+    "predicted_parse_with_values": "select count ( * ) from car_makers where country = 'france'",
+    "predicted_parse_explanation": [
+      "find the number of rows in car_makers table whose Country equals \"france\""
+    ],
+    "feedback": "Need to check the countryname field from countries for value 'france'"
+  },
+  {
+    "question": "Find the number of concerts happened in the stadium with the highest capacity.",
+    "db_id": "concert_singer",
+    "gold_parse": "select count ( * ) from concert join stadium on concert.stadium_id = stadium.stadium_id order by stadium.capacity desc limit 1",
+    "predicted_parse_with_values": "select count ( * ) from stadium join concert on stadium.stadium_id = concert.stadium_id group by stadium.stadium_id order by stadium.capacity desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Remove 'group by' clause. Just count occurrences of all concerts"
+  },
+  {
+    "question": "Give the names of nations that speak both English and French.",
+    "db_id": "world_1",
+    "gold_parse": "select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' intersect select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'French'",
+    "predicted_parse_with_values": "select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'English' intersect select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'French'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace 'countrycode' from the country table with 'code"
+  },
+  {
+    "question": "Find the abbreviation and country of the airline that has fewest number of flights?",
+    "db_id": "flight_2",
+    "gold_parse": "select airlines.abbreviation , airlines.country from airlines join flights on airlines.uid = flights.airline group by airlines.airline order by count ( * ) asc limit 1",
+    "predicted_parse_with_values": "select airlines.abbreviation , airlines.country from airlines join flights on airlines.uid = flights.airline group by flights.abbreviation order by count ( * ) asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Find the number of corresponding rows for airline from airlines table instead"
+  },
+  {
+    "question": "What is the name of the winner with the most rank points who participated in the Australian Open tournament?",
+    "db_id": "wta_1",
+    "gold_parse": "select winner_name from matches where tourney_name = 'Australian Open' order by winner_rank_points desc limit 1",
+    "predicted_parse_with_values": "select matches.winner_name from matches join rankings on matches.winner_id = rankings.player_id join tourneys on rankings.tournament_id = tourneys.tournament_id where tourneys.tournament_name = 'Australian Open' order by rankings.winner_rank_points desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Can find all the relevant columns from the matches table. Remove the other tables."
+  },
+  {
+    "question": "How much does the most expensive charge type costs?",
+    "db_id": "dog_kennels",
+    "gold_parse": "select max ( charge_amount ) from charges",
+    "predicted_parse_with_values": "select charge_type from charges order by charge_amount desc limit 1",
+    "predicted_parse_explanation": [
+      "find the charge_type of Charges table with largest value of charge_amount"
+    ],
+    "feedback": "Just find the largest charge_amount, we don't need charge_type"
+  },
+  {
+    "question": "How much surface area do the countires in the Carribean cover together?",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( surfacearea ) from country where region = 'Caribbean'",
+    "predicted_parse_with_values": "select sum ( surfacearea ) from country where region = 'Carribean'",
+    "predicted_parse_explanation": [
+      "find the summation of SurfaceArea in country table whose Region equals \"Carribean\""
+    ],
+    "feedback": "The region value should equal 'Caribbean'"
+  },
+  {
+    "question": "Return the average earnings across all poker players.",
+    "db_id": "poker_player",
+    "gold_parse": "select avg ( earnings ) from poker_player",
+    "predicted_parse_with_values": "select avg ( equity ) from poker_player",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace equity with earnings"
+  },
+  {
+    "question": "Give the names of countries with English and French as official languages.",
+    "db_id": "world_1",
+    "gold_parse": "select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' and countrylanguage.isofficial = 'T' intersect select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'French' and countrylanguage.isofficial = 'T'",
+    "predicted_parse_with_values": "select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'English' intersect select country.name from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'French'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace countrycode from country table with code. Make sure isofficial = 'T' for both the values."
+  },
+  {
+    "question": "What is the name of the country with the most car makers?",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryname from car_makers join countries on car_makers.country = countries.countryid group by car_makers.country order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select country from car_makers group by country order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "find the number of rows of each value of Country in car_makers table",
+      "find Country of car_makers table with largest value in the results of step 1"
+    ],
+    "feedback": "I want countryname from countries table to be returned"
+  },
+  {
+    "question": "Which address holds the most number of students currently? List the address id and all lines.",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select addresses.address_id , addresses.line_1 , addresses.line_2 from addresses join students on addresses.address_id = students.current_address_id group by addresses.address_id order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select addresses.address_id , addresses.line_1 from addresses join students on addresses.address_id = students.current_address_id group by addresses.address_id order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in Addresses table, find the corresponding rows in Students table",
+      "find the number of rows of each value of address_id in the results of step 1",
+      "find address_id, line_1 of step 1 results with largest value in the results of step 2"
+    ],
+    "feedback": "Find line_2 as well"
+  },
+  {
+    "question": "What is Weekly Rank of TV series with Episode \"A Love of a Lifetime\"?",
+    "db_id": "tvshow",
+    "gold_parse": "select weekly_rank from tv_series where episode = 'A Love of a Lifetime'",
+    "predicted_parse_with_values": "select weekly_rank from tv_series where episode = 'A love of a Lifetime'",
+    "predicted_parse_explanation": [
+      "find the Weekly_Rank of TV_series table for which Episode equals \"A love of a Lifetime\""
+    ],
+    "feedback": "The episode value should be 'A Love of a Lifetime'"
+  },
+  {
+    "question": "For all of the 4 cylinder cars, which model has the most horsepower?",
+    "db_id": "car_1",
+    "gold_parse": "select car_names.model from car_names join cars_data on car_names.makeid = cars_data.id where cars_data.cylinders = 4 order by cars_data.horsepower desc limit 1",
+    "predicted_parse_with_values": "select model_list.model from cars_data join model_list on cars_data.id = model_list.modelid where cars_data.cylinders = 4",
+    "predicted_parse_explanation": [
+      "For each row in cars_data table, find the corresponding rows in model_list table",
+      "find Model of the results of step 1 whose Cylinders equals 4.0"
+    ],
+    "feedback": "Make sure you only return the model with highest value for horsepower. We should get model column from car_names table."
+  },
+  {
+    "question": "Which dogs are owned by someone who lives in Virginia? List the owner's first name and the dog's name.",
+    "db_id": "dog_kennels",
+    "gold_parse": "select owners.first_name , dogs.name from owners join dogs on owners.owner_id = dogs.owner_id where owners.state = 'Virginia'",
+    "predicted_parse_with_values": "select dogs.first_name , dogs.name from dogs join owners on dogs.owner_id = owners.owner_id where owners.state = 'Virginia'",
+    "predicted_parse_explanation": "",
+    "feedback": "first_name needs to come from owners table"
+  },
+  {
+    "question": "What are the countries having at least one car maker? List name and id.",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryname , countries.countryid from countries join car_makers on countries.countryid = car_makers.country group by countries.countryid having count ( * ) >= 1",
+    "predicted_parse_with_values": "select countries.countryname , countries.countryid from countries join car_makers on countries.countryid = car_makers.countryid group by countries.countryid having count ( * ) >= 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace car_makers.countryid with car_makers.country"
+  },
+  {
+    "question": "What are the codes of countries where Spanish is spoken by the largest percentage of people?",
+    "db_id": "world_1",
+    "gold_parse": "select countrycode , max ( percentage ) from countrylanguage where language = 'Spanish' group by countrycode",
+    "predicted_parse_with_values": "select countrycode from countrylanguage where language = 'Spanish' group by countrycode order by sum ( percent ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Select maximum value of percentage field for each collection of countrycode rows"
+  },
+  {
+    "question": "Give the number of Jetblue Airways flights.",
+    "db_id": "flight_2",
+    "gold_parse": "select count ( * ) from flights join airlines on flights.airline = airlines.uid where airlines.airline = 'JetBlue Airways'",
+    "predicted_parse_with_values": "select count ( * ) from airlines join flights on airlines.uid = flights.airline where airlines.abbreviation = 'Jazz' and airlines.airline = 'Jazz'",
+    "predicted_parse_explanation": [
+      "For each row in airlines table, find the corresponding rows in flights table",
+      "find the number of rows in the results of step 1 whose Abbreviation equals \"Jazz\" and airlines's Airline equals \"Jazz\""
+    ],
+    "feedback": "In step 2, we only need to find where airline = 'JetBlue Airways'"
+  },
+  {
+    "question": "What are the first name and last name of the professionals who have done treatment with cost below average?",
+    "db_id": "dog_kennels",
+    "gold_parse": "select distinct professionals.first_name , professionals.last_name from professionals join treatments where cost_of_treatment < ( select avg ( cost_of_treatment ) from treatments )",
+    "predicted_parse_with_values": "select professionals.first_name , professionals.last_name from professionals join treatments on professionals.professional_id = treatments.professional_id where treatments.cost_of_treatment < ( select avg ( cost_of_treatment ) from treatments )",
+    "predicted_parse_explanation": [
+      "find the average cost_of_treatment in Treatments table",
+      "For each row in Professionals table, find the corresponding rows in Treatments table",
+      "find first_name, last_name in the results of step 2 whose cost_of_treatment less than the results of step 1"
+    ],
+    "feedback": "Remove the 'on' clause from the join"
+  },
+  {
+    "question": "List the area codes in which voters voted both for the contestant 'Tabatha Gehling' and the contestant 'Kelly Clauss'.",
+    "db_id": "voter_1",
+    "gold_parse": "select area_code_state.area_code from contestants join votes on contestants.contestant_number = votes.contestant_number join area_code_state on votes.state = area_code_state.state where contestants.contestant_name = 'Tabatha Gehling' intersect select area_code_state.area_code from contestants join votes on contestants.contestant_number = votes.contestant_number join area_code_state on votes.state = area_code_state.state where contestants.contestant_name = 'Kelly Clauss'",
+    "predicted_parse_with_values": "select area_code_state.area_code from area_code_state join votes on area_code_state.area_code = votes.area_code join contestants on votes.contestant_number = contestants.contestant_number where contestants.contestant_name = 'Tabatha Gehling' intersect select area_code_state.area_code from area_code_state join votes on area_code_state.area_code = votes.area_code join contestants on votes.contestant_number = contestants.contestant_number where contestants.contestant_name = 'Kelly Clauss'",
+    "predicted_parse_explanation": "",
+    "feedback": "Change area_code_state area_code to state column. Change all references to area_code column from votes table to state column."
+  },
+  {
+    "question": "What is average life expectancy in the countries where English is not the official language?",
+    "db_id": "world_1",
+    "gold_parse": "select avg ( lifeexpectancy ) from country where name not in ( select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' and countrylanguage.isofficial = 'T' )",
+    "predicted_parse_with_values": "select avg ( lifeexpectancy ) from country where countrycode not in ( select countrycode from countrylanguage where language = 'English' )",
+    "predicted_parse_explanation": "",
+    "feedback": "Swap countrycode from the country table with the name column. Then we need to be sure isofficial = 'T', and that the corresponding life expectancy where the name is present in the second select isn't shown."
+  },
+  {
+    "question": "Return the country name and the numbers of languages spoken for each country that speaks at least 3 languages.",
+    "db_id": "world_1",
+    "gold_parse": "select count ( countrylanguage.language ) , country.name from country join countrylanguage on country.code = countrylanguage.countrycode group by country.name having count ( * ) > 2",
+    "predicted_parse_with_values": "select country.name , count ( * ) from country join countrylanguage on country.countrycode = countrylanguage.countrycode group by country.countrycode having count ( * ) >= 3",
+    "predicted_parse_explanation": "",
+    "feedback": "We want to find the count of language column instead. Swap countrycode field from the country table with code, and group by the number of rows in the name column instead of countrycode."
+  },
+  {
+    "question": "How many flights have destination ATO?",
+    "db_id": "flight_2",
+    "gold_parse": "select count ( * ) from flights where destairport = 'ATO'",
+    "predicted_parse_with_values": "select count ( * ) from airports join flights on airports.airport = flights.sourceairport where airports.airportcode = 'ATO'",
+    "predicted_parse_explanation": "",
+    "feedback": "'ATO' is a destairport from the flights table"
+  },
+  {
+    "question": "What is the maximum number of times that a course shows up in different transcripts and what is that course's enrollment id?",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select count ( * ) , student_course_id from transcript_contents group by student_course_id order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select courses.course_name , courses.student_enrolment_id from courses join transcript_contents on courses.course_id = transcript_contents.course_id group by courses.course_name order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to find  student course id from the transcript_contents table, and then get the id and count that appears the most"
+  },
+  {
+    "question": "What is the name of the visitor who visited both a museum opened before 2009 and a museum opened after 2011?",
+    "db_id": "museum_visit",
+    "gold_parse": "select visitor.name from visitor join visit on visitor.id = visit.visitor_id join museum on museum.museum_id = visit.museum_id where museum.open_year < 2009 intersect select visitor.name from visitor join visit on visitor.id = visit.visitor_id join museum on museum.museum_id = visit.museum_id where museum.open_year > 2011",
+    "predicted_parse_with_values": "select visitor.name from visit join visitor on visit.visit_id = visitor.id join museum on visit.museum_id = museum.museum_id where museum.open_year < 2009 intersect select visitor.name from visit join visitor on visit.visit_id = visitor.id join museum on visit.museum_id = museum.museum_id where museum.open_year > 2011",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace all instances of 'visit_id' with 'id'"
+  },
+  {
+    "question": "How many car models are produced in the usa?",
+    "db_id": "car_1",
+    "gold_parse": "select count ( * ) from model_list join car_makers on model_list.maker = car_makers.id join countries on car_makers.country = countries.countryid where countries.countryname = 'usa'",
+    "predicted_parse_with_values": "select count ( distinct car_makers.model ) from countries join car_makers on countries.countryid = car_makers.country where countries.countryname = 'usa'",
+    "predicted_parse_explanation": "",
+    "feedback": "Find the count of all rows in model_list where the corresponding maker's countryname is 'usa'"
+  },
+  {
+    "question": "What are the id and names of the countries which have more than 3 car makers or produce the 'fiat' model?",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = car_makers.country group by countries.countryid having count ( * ) > 3 union select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = car_makers.country join model_list on car_makers.id = model_list.maker where model_list.model = 'fiat'",
+    "predicted_parse_with_values": "select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = model_list.country where model_list.model = 'fiat' group by countries.countryid having count ( * ) > 3 union select countries.countryid , countries.countryname from countries join model_list on countries.countryid = model_list.country where model_list.model = 'fiat' group by countries.countryid having count ( * ) > 3",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace the 1st model_list country with the country column from car_makers table. Replace the 2nd reference of the same with car_makers.country. Remove 'where model_list.model = 'fiat', we only need to check where model from model_list is 'fiat'"
+  },
+  {
+    "question": "What is the total population of Gelderland district?",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( population ) from city where district = 'Gelderland'",
+    "predicted_parse_with_values": "select sum ( population ) from city where district = 'Geenerland'",
+    "predicted_parse_explanation": [
+      "find the summation of Population in city table whose District equals \"Geenerland\""
+    ],
+    "feedback": "The value is wrong, we should use 'Gelderland'"
+  },
+  {
+    "question": "What is the abbreviation of the airilne has the fewest flights and what country is it in?",
+    "db_id": "flight_2",
+    "gold_parse": "select airlines.abbreviation , airlines.country from airlines join flights on airlines.uid = flights.airline group by airlines.airline order by count ( * ) asc limit 1",
+    "predicted_parse_with_values": "select airlines.abbreviation , airlines.country from airlines join flights on airlines.uid = flights.airline group by flights.abbreviation order by count ( * ) asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to find number of rows for each value in airline column, not abbreviation column"
+  },
+  {
+    "question": "What is the smallest weight of the car produced with 8 cylinders on 1974?",
+    "db_id": "car_1",
+    "gold_parse": "select weight from cars_data where cylinders = 4 and year = 1974 order by weight asc limit 1",
+    "predicted_parse_with_values": "select min ( weight ) from cars_data where cylinders = 8 and year = 1974",
+    "predicted_parse_explanation": [
+      "find the minimum Weight in cars_data table whose Cylinders equals 8.0 and Year equals 1974.0"
+    ],
+    "feedback": "Find where cylinders equals 4"
+  },
+  {
+    "question": "What is the name of the series that has the episode \"A Love of a Lifetime\"?",
+    "db_id": "tvshow",
+    "gold_parse": "select tv_channel.series_name from tv_channel join tv_series on tv_channel.id = tv_series.channel where tv_series.episode = 'A Love of a Lifetime'",
+    "predicted_parse_with_values": "select tv_channel.series_name from tv_series join tv_channel on tv_series.id = tv_channel.channel join series on tv_channel.series_name = series.id where tv_series.episode = 'A Love of a Lifetime'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace tv_channel channel with id, and tv_series id with channel. Remove series table, just get where episode is equal to value"
+  },
+  {
+    "question": "What is the name and capacity for the stadium with the highest average attendance?",
+    "db_id": "concert_singer",
+    "gold_parse": "select name , capacity from stadium order by average desc limit 1",
+    "predicted_parse_with_values": "select name , capacity from stadium group by stadium_id order by avg ( attendance ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Order by 'average', with no avg operator"
+  },
+  {
+    "question": "What are the names of the high schoolers and how many friends does each have?",
+    "db_id": "network_1",
+    "gold_parse": "select highschooler.name , count ( * ) from friend join highschooler on friend.student_id = highschooler.id group by friend.student_id",
+    "predicted_parse_with_values": "select count ( * ) , highschooler.name from highschooler join friend on highschooler.id = friend.friend_id group by highschooler.name",
+    "predicted_parse_explanation": [
+      "For each row in Highschooler table, find the corresponding rows in Friend table",
+      "find each value of name in the results of step 1 along with the number of the corresponding rows to each value"
+    ],
+    "feedback": "In step two, find number of rows for each value od student_id, not name"
+  },
+  {
+    "question": "Find the weight of the youngest dog.",
+    "db_id": "pets_1",
+    "gold_parse": "select weight from pets order by pet_age asc limit 1",
+    "predicted_parse_with_values": "select weight from pets where pettype = 'dog' order by age asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace age with pet_age"
+  },
+  {
+    "question": "What is the best rank of losers across all matches?",
+    "db_id": "wta_1",
+    "gold_parse": "select min ( loser_rank ) from matches",
+    "predicted_parse_with_values": "select loser_rank from matches",
+    "predicted_parse_explanation": [
+      "find the loser_rank of matches table"
+    ],
+    "feedback": "Find the minimum loser_rank"
+  },
+  {
+    "question": "What are the ids and names of all countries that either have more than 3 car makers or produce fiats?",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = car_makers.country group by countries.countryid having count ( * ) > 3 union select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = car_makers.country join model_list on car_makers.id = model_list.maker where model_list.model = 'fiat'",
+    "predicted_parse_with_values": "select countries.countryid , countries.countryname from countries join car_makers on countries.countryid = fiat.country where fiat.maker = 'fiat' group by countries.countryid having count ( * ) > 3 union select countries.countryid , countries.countryname from countries join fiat on countries.countryid = fiat.country where fiat.model = 'fiat'",
+    "predicted_parse_explanation": "",
+    "feedback": "country column needs to come from car_makers table, not fiat table. Then, we check that the model column in model_list is equal to 'fiat'"
+  },
+  {
+    "question": "What is the total number of people living in the nations that do not use English?",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( population ) from country where name not in ( select country.name from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' )",
+    "predicted_parse_with_values": "select sum ( population ) from country where countrycode not in ( select countrycode from countrylanguage where language = 'English' )",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace countrycode with name. Then ignore the corresponding country name fields where the corresponding language is 'English' "
+  },
+  {
+    "question": "What are the countries that are not playing cartoons written by Todd Casey?",
+    "db_id": "tvshow",
+    "gold_parse": "select country from tv_channel except select tv_channel.country from tv_channel join cartoon on tv_channel.id = cartoon.channel where cartoon.written_by = 'Todd Casey'",
+    "predicted_parse_with_values": "select country from tv_channel except select tv_channel.country from tv_channel join cartoon on tv_channel.id = cartoon.id where cartoon.written_by = 'Todd Casey'",
+    "predicted_parse_explanation": [
+      "find the Country of TV_Channel table",
+      "For each row in TV_Channel table, find the corresponding rows in Cartoon table",
+      "find Country of the results of step 2 whose Written_by equals \"Todd Casey\"",
+      "show the rows that are in the results of step 1 but not in the results of step 3"
+    ],
+    "feedback": "Replace cartoon id with cartoon channel"
+  },
+  {
+    "question": "Which dogs are of the rarest breed? Show their names and treatment dates.",
+    "db_id": "dog_kennels",
+    "gold_parse": "select dogs.name , treatments.date_of_treatment from dogs join treatments on dogs.dog_id = treatments.dog_id where dogs.breed_code = ( select breed_code from dogs group by breed_code order by count ( * ) asc limit 1 )",
+    "predicted_parse_with_values": "select dogs.name , treatments.date_of_treatment from dogs join treatments on dogs.dog_id = treatments.dog_id where dogs.breed_code = ( select rarest breed_code from breeds group by breed_code order by count ( * ) desc limit 1 )",
+    "predicted_parse_explanation": "",
+    "feedback": "Remove 'rarest'. Order using asc, not desc. Replace breeds table with dogs table, so we only use breed_code from dogs"
+  },
+  {
+    "question": "Return the different names of cities that are in Asia and for which Chinese is the official language.",
+    "db_id": "world_1",
+    "gold_parse": "select distinct city.name from country join countrylanguage on country.code = countrylanguage.countrycode join city on country.code = city.countrycode where countrylanguage.isofficial = 'T' and countrylanguage.language = 'Chinese' and country.continent = 'Asia'",
+    "predicted_parse_with_values": "select distinct city.name from city join countrylanguage on city.countrycode = countrylanguage.countrycode where countrylanguage.continent = 'Asia' and countrylanguage.language = 'Chinese'",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to get continent from the country table and ensure it is 'Asia'. Also ensure isofficial = 'T'."
+  },
+  {
+    "question": "What are the names of high schoolers who have a grade of over 5 and have 2 or more friends?",
+    "db_id": "network_1",
+    "gold_parse": "select highschooler.name from friend join highschooler on friend.student_id = highschooler.id where highschooler.grade > 5 group by friend.student_id having count ( * ) >= 2",
+    "predicted_parse_with_values": "select highschooler.name from highschooler join friend on highschooler.id = friend.friend_id where highschooler.grade > 5 group by friend.friend_id having count ( * ) >= 2",
+    "predicted_parse_explanation": [
+      "For each row in Highschooler table, find the corresponding rows in Friend table",
+      "find rows in the results of step 1 whose grade greater than 5.0",
+      "find the number of rows of each value of friend_id in step 1 rsults",
+      "find name in the results of step 1 whose corresponding value in step 2 is greater than or equals 2.0"
+    ],
+    "feedback": "In step 3, find the number of rows for each value of student_id instead. Join friend table using student_id, not friend_id"
+  },
+  {
+    "question": "How many people live in Gelderland district?",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( population ) from city where district = 'Gelderland'",
+    "predicted_parse_with_values": "select population from city where district = 'Gelderland'",
+    "predicted_parse_explanation": [
+      "find the Population of city table for which District equals \"Gelderland\""
+    ],
+    "feedback": "Find the sum of population field"
+  },
+  {
+    "question": "What are the titles of all cartoons directed by Ben Jones or Brandon Vietti?",
+    "db_id": "tvshow",
+    "gold_parse": "select title from cartoon where directed_by = 'Ben Jones' or directed_by = 'Brandon Vietti'",
+    "predicted_parse_with_values": "select title from cartoon where directed_by = 'Ben Jones' or directed_by = 'Blanco Vietti'",
+    "predicted_parse_explanation": [
+      "find Title of Cartoon table whose Directed_by equals \"Ben Jones\" or Directed_by equals \"Blanco Vietti\""
+    ],
+    "feedback": "Replace 'Blanco' with 'Brandon'"
+  },
+  {
+    "question": "What are the names and ids of all countries with at least one car maker?",
+    "db_id": "car_1",
+    "gold_parse": "select countries.countryname , countries.countryid from countries join car_makers on countries.countryid = car_makers.country group by countries.countryid having count ( * ) >= 1",
+    "predicted_parse_with_values": "select countries.countryname , countries.countryid from countries join car_makers on countries.countryid = car_makers.countryid group by countries.countryid having count ( * ) >= 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace countryid from car makers with country"
+  },
+  {
+    "question": "List the name, date and result of each battle.",
+    "db_id": "battle_death",
+    "gold_parse": "select name , date from battle",
+    "predicted_parse_with_values": "select name , date , result from battle",
+    "predicted_parse_explanation": [
+      "find the name, date, result of battle table"
+    ],
+    "feedback": "Don't return the result"
+  },
+  {
+    "question": "Show all document ids and the number of paragraphs in each document. Order by document id.",
+    "db_id": "cre_Doc_Template_Mgt",
+    "gold_parse": "select document_id , count ( * ) from paragraphs group by document_id order by document_id asc",
+    "predicted_parse_with_values": "select document_id , count ( * ) from paragraphs group by document_id order by count ( * ) asc",
+    "predicted_parse_explanation": [
+      "for each value of Document_ID in Paragraphs table, calculate number of rows",
+      "show each value of Document_ID in Paragraphs table along with the corresponding number of rows ordered ascending by the results of step 1"
+    ],
+    "feedback": "Need to order ascending by document_id"
+  },
+  {
+    "question": "What are the names of the dogs for which the owner spent more than 1000 for treatment?",
+    "db_id": "dog_kennels",
+    "gold_parse": "select name from dogs where dog_id not in ( select dog_id from treatments group by dog_id having sum ( cost_of_treatment ) > 1000 )",
+    "predicted_parse_with_values": "select dogs.name from dogs join treatments on dogs.dog_id = treatments.dog_id where treatments.cost_of_treatment > 1000",
+    "predicted_parse_explanation": [
+      "For each row in Dogs table, find the corresponding rows in Treatments table",
+      "find name of the results of step 1 whose cost_of_treatment greater than 1000.0"
+    ],
+    "feedback": "Need to group by dog_id and then find where the sum of treatment cost is greater that 1000"
+  },
+  {
+    "question": "What is the most populace city that speaks English?",
+    "db_id": "world_1",
+    "gold_parse": "select city.name , city.population from city join countrylanguage on city.countrycode = countrylanguage.countrycode where countrylanguage.language = 'English' order by city.population desc limit 1",
+    "predicted_parse_with_values": "select city.name from city join countrylanguage on city.id = countrylanguage.countrycode where countrylanguage.language = 'English' group by city.name order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in city table, find the corresponding rows in countrylanguage table",
+      "only keep the results of step 1 whose Language equals \"English\"",
+      "find the number of rows of each value of Name in the results of step 2",
+      "find Name of the results of step 2 with largest value in the results of step 3"
+    ],
+    "feedback": "Need to sort by population field desc"
+  },
+  {
+    "question": "Show the property type descriptions of properties belonging to that code.",
+    "db_id": "real_estate_properties",
+    "gold_parse": "select ref_property_types.property_type_description from properties join ref_property_types on properties.property_type_code = ref_property_types.property_type_code group by properties.property_type_code",
+    "predicted_parse_with_values": "select ref_property_types.property_type_description from ref_property_types join properties on ref_property_types.property_type_code = properties.property_type_code",
+    "predicted_parse_explanation": [
+      "For each row in Ref_Property_Types table, find the corresponding rows in Properties table",
+      "find property_type_description of the results of step 1"
+    ],
+    "feedback": "Need to group by property_type_code before returning"
+  },
+  {
+    "question": "Give average earnings of poker players who are taller than 200.",
+    "db_id": "poker_player",
+    "gold_parse": "select avg ( poker_player.earnings ) from people join poker_player on people.people_id = poker_player.people_id where people.height > 200",
+    "predicted_parse_with_values": "select avg ( poker_player.equity ) from poker_player join people on poker_player.people_id = people.people_id where people.height > 200",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace equity with earnings"
+  },
+  {
+    "question": "What is the id of the semester that had both Masters and Bachelors students enrolled?",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select distinct student_enrolment.semester_id from degree_programs join student_enrolment on degree_programs.degree_program_id = student_enrolment.degree_program_id where degree_summary_name = 'Master' intersect select distinct student_enrolment.semester_id from degree_programs join student_enrolment on degree_programs.degree_program_id = student_enrolment.degree_program_id where degree_summary_name = 'Bachelor'",
+    "predicted_parse_with_values": "select semester_id from student_enrolment where student_id in ( select student_id from student_enrolment where degree_program_id = 'MA' intersect select student_id from student_enrolment where degree_program_id = 'BS' )",
+    "predicted_parse_explanation": [
+      "find the student_id of Student_Enrolment table for which degree_program_id equals \"MA\"",
+      "find the semester_id of Student_Enrolment table whose student_id one of the results of step 1"
+    ],
+    "feedback": "Need to find unique semester_id fields with both 'Master' and 'Bachelor' values for degree_program_id from degree_programs table"
+  },
+  {
+    "question": "Find the average life expectancy and total population for each continent where the average life expectancy is shorter than 72?",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( population ) , avg ( lifeexpectancy ) , continent from country group by continent having avg ( lifeexpectancy ) < 72",
+    "predicted_parse_with_values": "select avg ( lifeexpectancy ) , sum ( population ) from country where lifeexpectancy < 72 group by continent",
+    "predicted_parse_explanation": "",
+    "feedback": "Return the continent as well. We need to group by continent first, then do average of lifeexpectancy < 72"
+  },
+  {
+    "question": "What is the code of airport that has fewest number of flights?",
+    "db_id": "flight_2",
+    "gold_parse": "select airports.airportcode from airports join flights on airports.airportcode = flights.destairport or airports.airportcode = flights.sourceairport group by airports.airportcode order by count ( * ) asc limit 1",
+    "predicted_parse_with_values": "select airports.airportcode from airports join flights on airports.airport = flights.sourceairport group by flights.sourceairport order by count ( * ) asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace airports airport column with airportcode column on join. Need to find number of rows for airport code in a group by"
+  },
+  {
+    "question": "What is maximum and minimum death toll caused each time?",
+    "db_id": "battle_death",
+    "gold_parse": "select max ( killed ) , min ( killed ) from death",
+    "predicted_parse_with_values": "select max ( killed ) , min ( killed ) from death group by killed",
+    "predicted_parse_explanation": "",
+    "feedback": "Remove the group by, just return min and max killed value"
+  },
+  {
+    "question": "What are the ids of high school students who do not have friends?",
+    "db_id": "network_1",
+    "gold_parse": "select id from highschooler except select student_id from friend",
+    "predicted_parse_with_values": "select student_id from highschooler except select student_id from friend",
+    "predicted_parse_explanation": "",
+    "feedback": "Return the id column instead of student_id"
+  },
+  {
+    "question": "What are the first, middle, and last names for everybody enrolled in a Bachelors program?",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select distinct students.first_name , students.middle_name , students.last_name from students join student_enrolment on students.student_id = student_enrolment.student_id join degree_programs on student_enrolment.degree_program_id = degree_programs.degree_program_id where degree_programs.degree_summary_name = 'Bachelor'",
+    "predicted_parse_with_values": "select students.first_name , students.middle_name , students.last_name from student_enrolment join students on student_enrolment.student_id = students.student_id where student_enrolment.degree_program_id = 'Bachelors'",
+    "predicted_parse_explanation": [
+      "For each row in Students table, find the corresponding rows in Student_Enrolment table",
+      "find first_name, middle_name, last_name of the results of step 1 whose degree_program_id equals \"Bachelors\""
+    ],
+    "feedback": "Need to check that degree_summary_name = 'Bachelor'. Only return the unique names"
+  },
+  {
+    "question": "Show ids of all students who do not have any friends.",
+    "db_id": "network_1",
+    "gold_parse": "select id from highschooler except select student_id from friend",
+    "predicted_parse_with_values": "select student_id from highschooler except select student_id from friend",
+    "predicted_parse_explanation": "",
+    "feedback": "Return the id, not the student_od"
+  },
+  {
+    "question": "What are the song titles and singer names?",
+    "db_id": "singer",
+    "gold_parse": "select song.title , singer.name from singer join song on singer.singer_id = song.singer_id",
+    "predicted_parse_with_values": "select singer.title , song.name from song join singer on song.song_id = singer.song_id join song on song.song_id = song.song_id",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to get title from song table, and name from singer table. Replace song_id with singer_id."
+  },
+  {
+    "question": "What are the country codes for countries that do not speak English?",
+    "db_id": "world_1",
+    "gold_parse": "select countrycode from countrylanguage except select countrycode from countrylanguage where language = 'English'",
+    "predicted_parse_with_values": "select countrycode from country where language != 'English'",
+    "predicted_parse_explanation": "",
+    "feedback": "We need to use the countrylanguage table, not country table. Be sure that no occurence of countrycode has a corresponding language field 'English'"
+  },
+  {
+    "question": "What country is Jetblue Airways affiliated with?",
+    "db_id": "flight_2",
+    "gold_parse": "select country from airlines where airline = 'JetBlue Airways'",
+    "predicted_parse_with_values": "select country from airlines where airline = 'Jazz' and abbreviation = 'Jazz'",
+    "predicted_parse_explanation": [
+      "find Country of airlines table whose Airline equals \"Jazz\" and Abbreviation equals \"Jazz\""
+    ],
+    "feedback": "Just check that airline = 'JetBlue Airways'"
+  },
+  {
+    "question": "What is the produdction code and channel of the most recent cartoon?",
+    "db_id": "tvshow",
+    "gold_parse": "select production_code , channel from cartoon order by original_air_date asc limit 1",
+    "predicted_parse_with_values": "select production_code , channel from cartoon order by original_air_date desc limit 1",
+    "predicted_parse_explanation": [
+      "find the Production_code, Channel of Cartoon table with largest value of Original_air_date"
+    ],
+    "feedback": "Need to find smallest value of original_air_date"
+  },
+  {
+    "question": "What is the official language used in the country the name of whose head of state is Beatrix.",
+    "db_id": "world_1",
+    "gold_parse": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = 'Beatrix' and countrylanguage.isofficial = 'T'",
+    "predicted_parse_with_values": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = 'Beatrix'",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "find Language of the results of step 1 whose HeadOfState equals \"Beatrix\""
+    ],
+    "feedback": "Need to ensure that isofficial = 'T' as well"
+  },
+  {
+    "question": "Which distinctive models are produced by maker with the full name General Motors or weighing more than 3500?",
+    "db_id": "car_1",
+    "gold_parse": "select distinct model_list.model from car_names join model_list on car_names.model = model_list.model join car_makers on model_list.maker = car_makers.id join cars_data on car_names.makeid = cars_data.id where car_makers.fullname = 'General Motors' or cars_data.weight > 3500",
+    "predicted_parse_with_values": "select distinct model_list.model from car_makers join model_list on car_makers.id = model_list.model where car_makers.fullname = 'General Motors' or model_list.weight > 3500",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to get weight field from the cars_data table"
+  },
+  {
+    "question": "Among the cars that do not have the minimum horsepower, what are the make ids and names of al those with less than 4 cylinders?",
+    "db_id": "car_1",
+    "gold_parse": "select car_names.makeid , car_names.make from cars_data join car_names on cars_data.id = car_names.makeid where cars_data.horsepower > ( select min ( horsepower ) from cars_data ) and cars_data.cylinders <= 3",
+    "predicted_parse_with_values": "select car_names.make , car_names.name from cars_data join car_names on cars_data.id = car_names.makeid where cars_data.cylinders < 4",
+    "predicted_parse_explanation": "",
+    "feedback": "Make sure the cars we get don't have the smallest value of horsepower. Replace car_names.make with car_names.name"
+  },
+  {
+    "question": "What are the codes of the countries that do not speak English and whose government forms are not Republic?",
+    "db_id": "world_1",
+    "gold_parse": "select code from country where governmentform != 'Republic' except select countrycode from countrylanguage where language = 'English'",
+    "predicted_parse_with_values": "select countrycode from country where language != 'English' and governmentform != 'Republic'",
+    "predicted_parse_explanation": "",
+    "feedback": "We want the code column instead of the countrycode column to be returned. Need to go to countrylanguage table in order to get language column"
+  },
+  {
+    "question": "What are the ids of the students who do not own cats as pets?",
+    "db_id": "pets_1",
+    "gold_parse": "select stuid from student except select student.stuid from student join has_pet on student.stuid = has_pet.stuid join pets on pets.petid = has_pet.petid where pets.pettype = 'cat'",
+    "predicted_parse_with_values": "select stuid from student except select stuid from has_pet where pettype = 'cat'",
+    "predicted_parse_explanation": "",
+    "feedback": "pettype column comes from pets table"
+  },
+  {
+    "question": "What is the car wmodel with the highest mpg?",
+    "db_id": "car_1",
+    "gold_parse": "select car_names.model from car_names join cars_data on car_names.makeid = cars_data.id order by cars_data.mpg desc limit 1",
+    "predicted_parse_with_values": "select model_list.model from cars_data join model_list on cars_data.id = model_list.modelid order by cars_data.mpg desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in cars_data table, find the corresponding rows in model_list table",
+      "find Model of the results of step 1 with largest value of MPG"
+    ],
+    "feedback": "Find the model from car_names table instead"
+  },
+  {
+    "question": "Find the owner id and zip code of the owner who spent the most money in total for his or her dogs.",
+    "db_id": "dog_kennels",
+    "gold_parse": "select owners.owner_id , owners.zip_code from owners join dogs on owners.owner_id = dogs.owner_id join treatments on dogs.dog_id = treatments.dog_id group by owners.owner_id order by sum ( treatments.cost_of_treatment ) desc limit 1",
+    "predicted_parse_with_values": "select owners.owner_id , owners.zip_code from owners join dogs on owners.owner_id = dogs.owner_id group by owners.owner_id order by sum ( dogs.cost_of_treatment ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to get cost_of_treatment from treatments table"
+  },
+  {
+    "question": "What is the airport code of the airport with the most flights?",
+    "db_id": "flight_2",
+    "gold_parse": "select airports.airportcode from airports join flights on airports.airportcode = flights.destairport or airports.airportcode = flights.sourceairport group by airports.airportcode order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select airports.airportcode from airports join flights on airports.airport = flights.sourceairport group by flights.sourceairport order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Swap out airports.airport with airports.airportcode"
+  },
+  {
+    "question": "Which airports do not have departing or arriving flights?",
+    "db_id": "flight_2",
+    "gold_parse": "select airportname from airports where airportcode not in ( select sourceairport from flights union select destairport from flights )",
+    "predicted_parse_with_values": "select airportname from airports except select airports.airportname from airports join flights on airports.airportcode = flights.sourceairport",
+    "predicted_parse_explanation": [
+      "find the AirportName of airports table",
+      "For each row in airports table, find the corresponding rows in flights table",
+      "find AirportName of the results of step 2",
+      "show the rows that are in the results of step 1 but not in the results of step 3"
+    ],
+    "feedback": "Also make sure that the results don't have a corresponding destairport match"
+  },
+  {
+    "question": "Give the code of the airport with the least flights.",
+    "db_id": "flight_2",
+    "gold_parse": "select airports.airportcode from airports join flights on airports.airportcode = flights.destairport or airports.airportcode = flights.sourceairport group by airports.airportcode order by count ( * ) asc limit 1",
+    "predicted_parse_with_values": "select airports.airportcode from airports join flights on airports.airport = flights.sourceairport group by flights.sourceairport order by count ( * ) asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace airport column with airportcode "
+  },
+  {
+    "question": "How many times at most can a course enrollment result show in different transcripts? Also show the course enrollment id.",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select count ( * ) , student_course_id from transcript_contents group by student_course_id order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select count ( * ) , student_enrolment.course_enrolment_id from student_enrolment join transcript_contents on student_enrolment.course_id = transcript_contents.course_id group by student_enrolment.course_enrolment_id order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "We only need the transcript_contents table in order to answer this. Return student_course_id, not course enrolment id."
+  },
+  {
+    "question": "What is the total number of unique official languages spoken in the countries that are founded before 1930?",
+    "db_id": "world_1",
+    "gold_parse": "select count ( distinct countrylanguage.language ) from country join countrylanguage on country.code = countrylanguage.countrycode where indepyear < 1930 and countrylanguage.isofficial = 'T'",
+    "predicted_parse_with_values": "select count ( distinct language ) from countrylanguage where indepyear < 1930",
+    "predicted_parse_explanation": "",
+    "feedback": "Make sure isofficial = 'T' as well"
+  },
+  {
+    "question": "How many different winners both participated in the WTA Championships and were left handed?",
+    "db_id": "wta_1",
+    "gold_parse": "select count ( distinct winner_name ) from matches where tourney_name = 'WTA Championships' and winner_hand = 'L'",
+    "predicted_parse_with_values": "select count ( distinct matches.winner_name ) from matches join players on matches.winner_id = players.player_id where matches.tournament_name = 'WTA Championships' intersect select count ( distinct matches.winner_name ) from matches join players on matches.winner_id = players.player_id where matches.tournament_name = 'Left Hand'",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to check winner_hand column to be sure it equals 'L'. We only need to use the matches table, and reference tourney_name and winner_hand columns for their respective values."
+  },
+  {
+    "question": "Tell me the number of dogs that have received any treatment.",
+    "db_id": "dog_kennels",
+    "gold_parse": "select count ( * ) from dogs where dog_id not in ( select dog_id from treatments )",
+    "predicted_parse_with_values": "select count ( distinct dog_id ) from treatments",
+    "predicted_parse_explanation": [
+      "find the number of different dog_id in Treatments table"
+    ],
+    "feedback": "Find the number of dog_id fields from dog table where the id is not in treatments "
+  },
+  {
+    "question": "What are the regions that use English or Dutch?",
+    "db_id": "world_1",
+    "gold_parse": "select distinct country.region from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' or countrylanguage.language = 'Dutch'",
+    "predicted_parse_with_values": "select distinct country.region from country join countrylanguage on country.countrycode = countrylanguage.countrycode where countrylanguage.language = 'English' or countrylanguage.language = 'Dutch'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace country countrycode with code column"
+  },
+  {
+    "question": "Find the make and production time of the cars that were produced in the earliest year?",
+    "db_id": "car_1",
+    "gold_parse": "select car_names.make , cars_data.year from cars_data join car_names on cars_data.id = car_names.makeid where cars_data.year = ( select min ( year ) from cars_data )",
+    "predicted_parse_with_values": "select car_names.make , car_names.year from car_names join cars_data on car_names.makeid = cars_data.id order by cars_data.year asc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to get year from the cars_data table. Don't just return the top value, return all that have the smallest value of year"
+  },
+  {
+    "question": "What are the African countries that have a  population less than any country in Asia?",
+    "db_id": "world_1",
+    "gold_parse": "select name from country where continent = 'Africa' and population < ( select max ( population ) from country where continent = 'Asia' )",
+    "predicted_parse_with_values": "select name from country where population < ( select max ( population ) from country where continent = 'Asia' )",
+    "predicted_parse_explanation": [
+      "find the maximum Population in country table whose Continent equals \"Asia\"",
+      "find the Name of country table whose Population less than the results of step 1"
+    ],
+    "feedback": "Make sure the countries we get are in the continent 'Africa'"
+  },
+  {
+    "question": "What is the full name of each car maker, along with its id and how many models it produces?",
+    "db_id": "car_1",
+    "gold_parse": "select car_makers.fullname , car_makers.id , count ( * ) from car_makers join model_list on car_makers.id = model_list.maker group by car_makers.id",
+    "predicted_parse_with_values": "select car_makers.fullname , model_list.id , count ( * ) from car_makers join model_list on car_makers.id = model_list.makeid group by model_list.id",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace model_list id with car_makers id. makeid should be maker. group by the id of the car_makers table, not model_list"
+  },
+  {
+    "question": "Which city has most number of arriving flights?",
+    "db_id": "flight_2",
+    "gold_parse": "select airports.city from airports join flights on airports.airportcode = flights.destairport group by airports.city order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select airports.city from flights join airports on flights.sourceairport = airports.airportcode join airports on flights.destairport = airports.airportcode group by airports.city order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in flights table, find corresponding rows in airports table and in airports table",
+      "find the number of rows of each value of City in the results of step 1",
+      "find City of the results of step 1 with largest value in the results of step 2"
+    ],
+    "feedback": "Only use destairport, no need for sourceairport"
+  },
+  {
+    "question": "Give the total population and average surface area corresponding to countries in Noth America that have a surface area greater than 3000.",
+    "db_id": "world_1",
+    "gold_parse": "select sum ( population ) , avg ( surfacearea ) from country where continent = 'North America' and surfacearea > 3000",
+    "predicted_parse_with_values": "select sum ( population ) , avg ( surfacearea ) from country where region = 'North America' and surfacearea > 3000",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace continent with region"
+  },
+  {
+    "question": "What are the names of players who won in both 2013 and 2016?",
+    "db_id": "wta_1",
+    "gold_parse": "select winner_name from matches where year = 2013 intersect select winner_name from matches where year = 2016",
+    "predicted_parse_with_values": "select players.winner_name from players join matches on players.player_id = matches.winner_id where matches.year = 2013 intersect select players.winner_name from players join matches on players.player_id = matches.winner_id where matches.year = 2016",
+    "predicted_parse_explanation": "",
+    "feedback": "Remove all tables except for matches. We just need winner_name and year from the matches table."
+  },
+  {
+    "question": "What is the name and capacity for the stadium with highest average attendance?",
+    "db_id": "concert_singer",
+    "gold_parse": "select name , capacity from stadium order by average desc limit 1",
+    "predicted_parse_with_values": "select name , capacity from stadium group by stadium_id order by avg ( attendance ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "attendance isn't a column, we just need to order by the 'average' column"
+  },
+  {
+    "question": "What language is predominantly spoken in Aruba?",
+    "db_id": "world_1",
+    "gold_parse": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Aruba' order by percentage desc limit 1",
+    "predicted_parse_with_values": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Aruba' group by countrylanguage.language order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "only keep the results of step 1 whose Name equals \"Aruba\"",
+      "find the number of rows of each value of Language in the results of step 2",
+      "find Language of the results of step 2 with largest value in the results of step 3"
+    ],
+    "feedback": "In step 3, don't find the rows for each value of language. Just order by the percentage column and return the top value."
+  },
+  {
+    "question": "Which abbreviation corresponds to Jetblue Airways?",
+    "db_id": "flight_2",
+    "gold_parse": "select abbreviation from airlines where airline = 'JetBlue Airways'",
+    "predicted_parse_with_values": "select abbreviation from airlines where airline = 'Jazz'",
+    "predicted_parse_explanation": [
+      "find the Abbreviation of airlines table for which Airline equals \"Jazz\""
+    ],
+    "feedback": "Airline should equal 'JetBlue Airways'"
+  },
+  {
+    "question": "What is the official language spoken in the country whose head of state is Beatrix?",
+    "db_id": "world_1",
+    "gold_parse": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = 'Beatrix' and countrylanguage.isofficial = 'T'",
+    "predicted_parse_with_values": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.headofstate = 'Beatrix'",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "find Language of the results of step 1 whose HeadOfState equals \"Beatrix\""
+    ],
+    "feedback": "Need to add countrylanguage.isofficial = 'T'"
+  },
+  {
+    "question": "What languages are only used by a single country with a republic government?",
+    "db_id": "world_1",
+    "gold_parse": "select countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.governmentform = 'Republic' group by countrylanguage.language having count ( * ) = 1",
+    "predicted_parse_with_values": "select distinct countrylanguage.language from country join countrylanguage on country.code = countrylanguage.countrycode where country.governmentform = 'Republic'",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "find without repetition Language of the results of step 1 whose GovernmentForm equals \"Republic\""
+    ],
+    "feedback": "No need to find without repetition. Instead, find number of rows for each value of language, and if there's more than 1 row, return the language. "
+  },
+  {
+    "question": "Find the name of airports which do not have any flight in and out.",
+    "db_id": "flight_2",
+    "gold_parse": "select airportname from airports where airportcode not in ( select sourceairport from flights union select destairport from flights )",
+    "predicted_parse_with_values": "select airportname from airports where airportcode not in ( select airportcode from flights )",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to check to make sure airportcode doesn't have a corresponding value of sourceairport or destairport"
+  },
+  {
+    "question": "What is the first name of the student whose permanent address is different from his or her current one?",
+    "db_id": "student_transcripts_tracking",
+    "gold_parse": "select first_name from students where current_address_id != permanent_address_id",
+    "predicted_parse_with_values": "select first_name from students where permanent_address_id != 'current_address_id'",
+    "predicted_parse_explanation": [
+      "find the first_name of Students table for which permanent_address_id not equals \"current_address_id\""
+    ],
+    "feedback": "Make sure the current_address_id column is not equal to permanent id. Don't need to evaluate string value."
+  },
+  {
+    "question": "How many 'United Airlines' flights go to Airport 'ASY'?",
+    "db_id": "flight_2",
+    "gold_parse": "select count ( * ) from airlines join flights on flights.airline = airlines.uid where airlines.airline = 'United Airlines' and flights.destairport = 'ASY'",
+    "predicted_parse_with_values": "select count ( * ) from airlines join flights on airlines.uid = flights.airline where airlines.airline = 'United Airlines' and flights.airportcode = 'ASY'",
+    "predicted_parse_explanation": "",
+    "feedback": "Swap airportcode with destairport"
+  },
+  {
+    "question": "Which countries have either English or Dutch as an official language?",
+    "db_id": "world_1",
+    "gold_parse": "select * from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'English' and isofficial = 'T' union select * from country join countrylanguage on country.code = countrylanguage.countrycode where countrylanguage.language = 'Dutch' and isofficial = 'T'",
+    "predicted_parse_with_values": "select countrycode from countrylanguage where language = 'English' or language = 'Dutch'",
+    "predicted_parse_explanation": [
+      "find CountryCode of countrylanguage table whose Language equals \"English\" or Language equals \"Dutch\""
+    ],
+    "feedback": "Need to check that isofficial = 'T' for both English and Dutch"
+  },
+  {
+    "question": "Find the package choice and series name of the TV channel that has high definition TV.",
+    "db_id": "tvshow",
+    "gold_parse": "select package_option , series_name from tv_channel where hight_definition_tv = 'yes'",
+    "predicted_parse_with_values": "select package_option , series_name from tv_channel where hight_definition_tv = 'Yes'",
+    "predicted_parse_explanation": [
+      "find the Package_Option, series_name of TV_Channel table for which Hight_definition_TV equals \"Yes\""
+    ],
+    "feedback": "hight_definition_tv value should be 'yes' (lowercased)"
+  },
+  {
+    "question": "What are the ids of students who both have friends and are liked?",
+    "db_id": "network_1",
+    "gold_parse": "select student_id from friend intersect select liked_id from likes",
+    "predicted_parse_with_values": "select student_id from friend intersect select student_id from likes",
+    "predicted_parse_explanation": [
+      "find the student_id of Friend table",
+      "find the student_id of Likes table",
+      "show the rows that are in both the results of step 1 and the results of step 2"
+    ],
+    "feedback": "Substitute student_id with liked_id"
+  },
+  {
+    "question": "How many official languages are spoken in Afghanistan?",
+    "db_id": "world_1",
+    "gold_parse": "select count ( * ) from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Afghanistan' and isofficial = 'T'",
+    "predicted_parse_with_values": "select count ( distinct countrylanguage.language ) from country join countrylanguage on country.code = countrylanguage.countrycode where country.name = 'Afghanistan'",
+    "predicted_parse_explanation": [
+      "For each row in country table, find the corresponding rows in countrylanguage table",
+      "find the number of different Language in the results of step 1 whose Name equals \"Afghanistan\""
+    ],
+    "feedback": "Add isofficial = 'T'"
+  },
+  {
+    "question": "What are the names of the winner and loser who played in the longest match?",
+    "db_id": "wta_1",
+    "gold_parse": "select winner_name , loser_name from matches order by minutes desc limit 1",
+    "predicted_parse_with_values": "select winners.winner_name , winners.loser_name from winners join matches on winners.winner_id = matches.winner_id order by matches.minutes desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to select both names from the matches table"
+  },
+  {
+    "question": "Return the country codes for countries that do not speak English.",
+    "db_id": "world_1",
+    "gold_parse": "select countrycode from countrylanguage except select countrycode from countrylanguage where language = 'English'",
+    "predicted_parse_with_values": "select countrycode from country where language != 'English'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace country table with the countrylanguage table. Should only return results where there's never a corresponding row with language = 'English'"
+  },
+  {
+    "question": "Find the name and rank points of the winner who won the most times.",
+    "db_id": "wta_1",
+    "gold_parse": "select winner_name , winner_rank_points from matches group by winner_name order by count ( * ) desc limit 1",
+    "predicted_parse_with_values": "select winners.winner_name , winners.winner_rank_points from winners join rankings on winners.winner_id = rankings.player_id group by rankings.player_id order by count ( * ) desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "We only need to use the matches table. Find the number of rows for each value of winner_name, not player_id"
+  },
+  {
+    "question": "What are the number of concerts that occurred in the stadium with the largest capacity?",
+    "db_id": "concert_singer",
+    "gold_parse": "select count ( * ) from concert join stadium on concert.stadium_id = stadium.stadium_id order by stadium.capacity desc limit 1",
+    "predicted_parse_with_values": "select count ( * ) from stadium join concert on stadium.stadium_id = concert.stadium_id group by concert.stadium_id order by stadium.capacity desc limit 1",
+    "predicted_parse_explanation": "",
+    "feedback": "Don't include the group by clause. count clause should replace stadium with concert"
+  },
+  {
+    "question": "What are the death and injury situations caused by the ship with tonnage 't'?",
+    "db_id": "battle_death",
+    "gold_parse": "select death.killed , death.injured from death join ship on death.caused_by_ship_id = ship.id where ship.tonnage = 't'",
+    "predicted_parse_with_values": "select death.killed , death.injured from death join ship on death.ship_id = ship.id where ship.tonnage = 't'",
+    "predicted_parse_explanation": "",
+    "feedback": "Replace ship_id with caused_by_ship_id"
+  },
+  {
+    "question": "Find the id of students who do not have a cat pet.",
+    "db_id": "pets_1",
+    "gold_parse": "select stuid from student except select student.stuid from student join has_pet on student.stuid = has_pet.stuid join pets on pets.petid = has_pet.petid where pets.pettype = 'cat'",
+    "predicted_parse_with_values": "select stuid from student except select stuid from has_pet where pettype = 'cat'",
+    "predicted_parse_explanation": "",
+    "feedback": "pettype isn't in has_pet, use pets table for this field"
+  },
+  {
+    "question": "Find the number of dog pets that are raised by female students (with sex F).",
+    "db_id": "pets_1",
+    "gold_parse": "select count ( * ) from student join has_pet on student.stuid = has_pet.stuid join pets on has_pet.petid = pets.petid where student.sex = 'F' and pets.pettype = 'dog'",
+    "predicted_parse_with_values": "select count ( * ) from pets join has_pet on pets.petid = has_pet.petid join student on has_pet.stuid = student.stuid where student.sex = 'F'",
+    "predicted_parse_explanation": [
+      "For each row in Has_Pet table, find corresponding rows in Pets table and in Student table",
+      "find the number of rows in the results of step 1 whose Sex equals \"F\""
+    ],
+    "feedback": "Ensure the pet type is 'dog'"
+  },
+  {
+    "question": "Find the major and age of students who do not have a cat pet.",
+    "db_id": "pets_1",
+    "gold_parse": "select major , age from student where stuid not in ( select student.stuid from student join has_pet on student.stuid = has_pet.stuid join pets on pets.petid = has_pet.petid where pets.pettype = 'cat' )",
+    "predicted_parse_with_values": "select major , age from student except select student.major , student.age from student join has_pet on student.stuid = has_pet.stuid join pets on has_pet.petid = pets.petid where pets.pettype = 'cat'",
+    "predicted_parse_explanation": [
+      "find the Major, Age of Student table",
+      "For each row in Has_Pet table, find corresponding rows in Student table and in Pets table",
+      "find Major, Age of the results of step 2 whose PetType equals \"cat\"",
+      "show the rows that are in the results of step 1 but not in the results of step 3"
+    ],
+    "feedback": "Find major and age where the corresponding stuid from student doesn't have an associated pet with type 'cat'"
+  },
+  {
+    "question": "Which are the car makers which produce at least 2 models and more than 3 car makes? List the id and the maker.",
+    "db_id": "car_1",
+    "gold_parse": "select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.maker group by car_makers.id having count ( * ) >= 2 intersect select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.maker join car_names on model_list.model = car_names.model group by car_makers.id having count ( * ) > 3",
+    "predicted_parse_with_values": "select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.modelid group by car_makers.id having count ( * ) >= 2 intersect select car_makers.id , car_makers.maker from car_makers join model_list on car_makers.id = model_list.modelid group by car_makers.id having count ( * ) > 3",
+    "predicted_parse_explanation": [
+      "For each row in car_makers table, find the corresponding rows in model_list table",
+      "find the number of rows of each value of Id in the results of step 1",
+      "find Id, car_makers's Maker in the results of step 1 whose corresponding value in step 2 is greater than or equals 2.0",
+      "find Id, car_makers's Maker in the results of step 1 whose corresponding value in step 5 is greater than 3.0",
+      "show the rows that are in both the results of step 3 and the results of step 5"
+    ],
+    "feedback": "In the 2 joins with model_list and car_makers, we need to join with maker from model_list. Right before the group by, join car_names with model_list using the model field"
+  },
+  {
+    "question": "find the names of loser and winner who played in the match with greatest number of minutes.",
+    "db_id": "wta_1",
+    "gold_parse": "select winner_name , loser_name from matches order by minutes desc limit 1",
+    "predicted_parse_with_values": "select players.loser_name , players.winner_name from matches join players on matches.loser_id = players.player_id join winners on matches.winner_id = winners.winner_id where matches.minutes = ( select max ( minutes ) from matches )",
+    "predicted_parse_explanation": "",
+    "feedback": "Winners is not a table, need to just order by minutes from matches"
+  },
+  {
+    "question": "What major is every student who does not own a cat as a pet, and also how old are they?",
+    "db_id": "pets_1",
+    "gold_parse": "select major , age from student where stuid not in ( select student.stuid from student join has_pet on student.stuid = has_pet.stuid join pets on pets.petid = has_pet.petid where pets.pettype = 'cat' )",
+    "predicted_parse_with_values": "select major , age from student where stuid not in ( select stuid from has_pet where pettype = 'cat' )",
+    "predicted_parse_explanation": "",
+    "feedback": "Need to reference pets table in order to get pettpe"
+  },
+  {
+    "question": "What are the package options of all tv channels that are not playing any cartoons directed by Ben Jones?",
+    "db_id": "tvshow",
+    "gold_parse": "select package_option from tv_channel where id not in ( select channel from cartoon where directed_by = 'Ben Jones' )",
+    "predicted_parse_with_values": "select package_option from tv_channel except select tv_channel.package_option from tv_channel join cartoon on tv_channel.id = cartoon.channel where cartoon.directed_by = 'Ben Jones'",
+    "predicted_parse_explanation": [
+      "find the Package_Option of TV_Channel table",
+      "For each row in TV_Channel table, find the corresponding rows in Cartoon table",
+      "find Package_Option of the results of step 2 whose Directed_by equals \"Ben Jones\"",
+      "show the rows that are in the results of step 1 but not in the results of step 3"
+    ],
+    "feedback": "Need to make sure id from package_option is not equal to channel field from cartoon where ben jones directed"
+  },
+  {
+    "question": "What are the first names of every student who has a cat or dog as a pet?",
+    "db_id": "pets_1",
+    "gold_parse": "select distinct student.fname from student join has_pet on student.stuid = has_pet.stuid join pets on pets.petid = has_pet.petid where pets.pettype = 'cat' or pets.pettype = 'dog'",
+    "predicted_parse_with_values": "select student.fname from student join has_pet on student.stuid = has_pet.stuid join pets on has_pet.petid = pets.petid where pets.pettype = 'cat' or pets.pettype = 'dog'",
+    "predicted_parse_explanation": [
+      "For each row in Has_Pet table, find corresponding rows in Student table and in Pets table",
+      "find Fname of the results of step 1 whose PetType equals \"cat\" or PetType equals \"dog\""
+    ],
+    "feedback": "Only return unique first names"
+  }
+]
