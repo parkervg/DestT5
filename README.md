@@ -9,7 +9,7 @@ Given randomly selected errors on the [Spider](https://github.com/taoyds/spider)
 
 If you use this dataset or repository, please cite the following paper:
 
-```json
+```
 @inproceedings{glenn2023correcting,
   author = {Parker Glenn, Parag Pravin Dakle, Preethi Raghavan},
   title = "Correcting Semantic Parses with Natural Language through Dynamic Schema Encoding",
