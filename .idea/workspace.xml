@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fa1e1c39-2ff6-43de-b41a-031860e4eb9b" name="Changes" comment="" />
+    <list default="true" id="fa1e1c39-2ff6-43de-b41a-031860e4eb9b" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -27,7 +30,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "WebServerToolWindowFactoryState": "true",
     "git-widget-placeholder": "main",
-    "last_opened_file_path": "/Users/a720504/Desktop/Jetsons/DestT5/img",
+    "last_opened_file_path": "/Users/a720504/Desktop/Jetsons/DestT5/outputs/destt5-schema-prediction",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
@@ -38,8 +41,18 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
-      <recent name="$PROJECT_DIR$/img" />
-      <recent name="$PROJECT_DIR$/data" />
+      <recent name="$PROJECT_DIR$/outputs/destt5-schema-prediction" />
+      <recent name="$PROJECT_DIR$/outputs/destt5-text2sql" />
+      <recent name="$PROJECT_DIR$/outputs" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/configs/final/none" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/outputs/destt5-text2sql" />
+      <recent name="$PROJECT_DIR$/outputs/destt5-schema-prediction" />
+      <recent name="$PROJECT_DIR$" />
+      <recent name="$PROJECT_DIR$/seq2seq/configs" />
+      <recent name="$PROJECT_DIR$/seq2seq" />
     </key>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -50,7 +63,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1685459328285</updated>
-      <workItem from="1685459329601" duration="1346000" />
+      <workItem from="1685459329601" duration="1946000" />
+      <workItem from="1688486978341" duration="7315000" />
     </task>
     <servers />
   </component>
