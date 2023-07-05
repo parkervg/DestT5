@@ -18,7 +18,7 @@ If you use this dataset or repository, please cite the following paper:
 ```
 
 ## Performance 
-Below we display the exact-match (EM%) and execution-accuracy (EX%) of DestT5 on the auxiliary test sets available in the [NLEdit codebase](https://github.com/MSR-LIT/NLEdit).
+Below we display the exact-match (EM%) and execution-accuracy (EX%) of DestT5 on the [SPLASH dataset](https://github.com/MSR-LIT/Splash), as well as the auxiliary test sets available in the [NLEdit codebase](https://github.com/MSR-LIT/NLEdit).
 <table>
 <thead>
   <tr>
