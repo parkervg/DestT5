@@ -1,0 +1,10 @@
+colorama==0.4.4
+numpy==1.22.4
+rapidfuzz==2.15.1
+sql_metadata==2.10.0
+tokenizers
+datasets
+transformers==4.17.0
+torch==1.7.0
+cuttlepool==0.9.1
+nltk

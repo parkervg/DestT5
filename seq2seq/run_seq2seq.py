@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 import json
 import os
 import sys
-from contextlib import nullcontext
 from dataclasses import asdict
 from pathlib import Path
 
@@ -40,14 +39,12 @@ def main() -> None:
     # See all possible arguments by passing the --help flag to this script.
     parser = HfArgumentParser(
         (
-            PicardArguments,
             ModelArguments,
             DataArguments,
             DataTrainingArguments,
             Seq2SeqTrainingArguments,
         )
     )
-    picard_args: PicardArguments
     model_args: ModelArguments
     data_args: DataArguments
     data_training_args: DataTrainingArguments
@@ -56,7 +53,6 @@ def main() -> None:
         # If we pass only one argument to the script and it's the path to a json file,
         # let's parse it to get our arguments.
         (
-            picard_args,
             model_args,
             data_args,
             data_training_args,
@@ -70,7 +66,6 @@ def main() -> None:
         data = json.loads(Path(os.path.abspath(sys.argv[2])).read_text())
         data.update({"local_rank": int(sys.argv[1].split("=")[1])})
         (
-            picard_args,
             model_args,
             data_args,
             data_training_args,
@@ -78,7 +73,6 @@ def main() -> None:
         ) = parser.parse_dict(args=data)
     else:
         (
-            picard_args,
             model_args,
             data_args,
             data_training_args,
@@ -94,7 +88,6 @@ def main() -> None:
         logger.info(f"Resolve model_name_or_path to {model_args.model_name_or_path}")
 
     combined_args_dict = {
-        **asdict(picard_args),
         **asdict(model_args),
         **asdict(data_args),
         **asdict(data_training_args),
@@ -224,152 +217,139 @@ def main() -> None:
     with open("dataset_splits.pkl", "wb") as f:
         pickle.dump(dataset_splits, f)
 
-    # Initialize Picard if necessary
-    with PicardLauncher() if picard_args.launch_picard and training_args.local_rank <= 0 else nullcontext(
-        None
+    model_cls_wrapper = lambda model_cls: model_cls
+
+    # Initialize model
+    model = model_cls_wrapper(AutoModelForSeq2SeqLM).from_pretrained(
+        model_args.model_name_or_path,
+        from_tf=bool(".ckpt" in model_args.model_name_or_path),
+        config=config,
+        cache_dir=model_args.cache_dir,
+        revision=model_args.model_revision,
+        use_auth_token=True if model_args.use_auth_token else None,
+    )
+    if isinstance(model, T5ForConditionalGeneration):
+        model.resize_token_embeddings(len(tokenizer))
+
+    if training_args.label_smoothing_factor > 0 and not hasattr(
+        model, "prepare_decoder_input_ids_from_labels"
     ):
-        # Get Picard model class wrapper
-        if picard_args.use_picard:
-            model_cls_wrapper = lambda model_cls: with_picard(
-                model_cls=model_cls,
-                picard_args=picard_args,
-                tokenizer=tokenizer,
-                schemas=dataset_splits.schemas,
-            )
-        else:
-            model_cls_wrapper = lambda model_cls: model_cls
-
-        # Initialize model
-        model = model_cls_wrapper(AutoModelForSeq2SeqLM).from_pretrained(
-            model_args.model_name_or_path,
-            from_tf=bool(".ckpt" in model_args.model_name_or_path),
-            config=config,
-            cache_dir=model_args.cache_dir,
-            revision=model_args.model_revision,
-            use_auth_token=True if model_args.use_auth_token else None,
+        logger.warning(
+            "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
+            f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
         )
-        if isinstance(model, T5ForConditionalGeneration):
-            model.resize_token_embeddings(len(tokenizer))
-
-        if training_args.label_smoothing_factor > 0 and not hasattr(
-            model, "prepare_decoder_input_ids_from_labels"
-        ):
-            logger.warning(
-                "label_smoothing is enabled but the `prepare_decoder_input_ids_from_labels` method is not defined for"
-                f"`{model.__class__.__name__}`. This will lead to loss being calculated twice and will take up more memory"
-            )
-        print(training_args)
-        # Initialize Trainer
-        trainer_kwargs = {
-            "model": model,
-            "args": training_args,
-            "metric": metric,
-            "train_dataset": dataset_splits.train_split.dataset
-            if training_args.do_train
-            else None,
-            "eval_dataset": dataset_splits.eval_split.dataset
-            if training_args.do_eval
-            else None,
-            "eval_examples": dataset_splits.eval_split.examples
-            if training_args.do_eval
-            else None,
-            "tokenizer": tokenizer,
-            "data_collator": DataCollatorForSeq2Seq(
-                tokenizer,
-                model=model,
-                label_pad_token_id=(
-                    -100
-                    if data_training_args.ignore_pad_token_for_loss
-                    else tokenizer.pad_token_id
-                ),
-                pad_to_multiple_of=8 if training_args.fp16 else None,
+    print(training_args)
+    # Initialize Trainer
+    trainer_kwargs = {
+        "model": model,
+        "args": training_args,
+        "metric": metric,
+        "train_dataset": dataset_splits.train_split.dataset
+        if training_args.do_train
+        else None,
+        "eval_dataset": dataset_splits.eval_split.dataset
+        if training_args.do_eval
+        else None,
+        "eval_examples": dataset_splits.eval_split.examples
+        if training_args.do_eval
+        else None,
+        "tokenizer": tokenizer,
+        "data_collator": DataCollatorForSeq2Seq(
+            tokenizer,
+            model=model,
+            label_pad_token_id=(
+                -100
+                if data_training_args.ignore_pad_token_for_loss
+                else tokenizer.pad_token_id
             ),
-            "ignore_pad_token_for_loss": data_training_args.ignore_pad_token_for_loss,
-            "target_with_db_id": data_training_args.target_with_db_id,
-        }
-        # using spidertrainer as it is.
-        if data_args.dataset in [
-            "spider",
-            "spider_realistic",
-            "spider_syn",
-            "spider_dk",
-        ]:
-            trainer = SpiderTrainer(**trainer_kwargs)
-        elif data_args.dataset == "splash":
-            trainer = SplashTrainer(**trainer_kwargs)
-        elif data_args.dataset in ["cosql", "cosql+spider"]:
-            trainer = CoSQLTrainer(**trainer_kwargs)
-        else:
-            raise NotImplementedError()
+            pad_to_multiple_of=8 if training_args.fp16 else None,
+        ),
+        "ignore_pad_token_for_loss": data_training_args.ignore_pad_token_for_loss,
+        "target_with_db_id": data_training_args.target_with_db_id,
+    }
+    # using spidertrainer as it is.
+    if data_args.dataset in [
+        "spider",
+        "spider_realistic",
+        "spider_syn",
+        "spider_dk",
+    ]:
+        trainer = SpiderTrainer(**trainer_kwargs)
+    elif data_args.dataset == "splash":
+        trainer = SplashTrainer(**trainer_kwargs)
+    elif data_args.dataset in ["cosql", "cosql+spider"]:
+        trainer = CoSQLTrainer(**trainer_kwargs)
+    else:
+        raise NotImplementedError()
 
-        # Training
-        if training_args.do_train:
-            logger.info("*** Train ***")
+    # Training
+    if training_args.do_train:
+        logger.info("*** Train ***")
 
-            checkpoint = None
+        checkpoint = None
 
-            if training_args.resume_from_checkpoint is not None:
-                checkpoint = training_args.resume_from_checkpoint
-            elif last_checkpoint is not None:
-                checkpoint = last_checkpoint
+        if training_args.resume_from_checkpoint is not None:
+            checkpoint = training_args.resume_from_checkpoint
+        elif last_checkpoint is not None:
+            checkpoint = last_checkpoint
 
-            train_result = trainer.train(resume_from_checkpoint=checkpoint)
-            trainer.save_model()  # Saves the tokenizer too for easy upload
+        train_result = trainer.train(resume_from_checkpoint=checkpoint)
+        trainer.save_model()  # Saves the tokenizer too for easy upload
 
-            metrics = train_result.metrics
-            max_train_samples = (
-                data_training_args.max_train_samples
-                if data_training_args.max_train_samples is not None
-                else len(dataset_splits.train_split.dataset)
-            )
-            metrics["train_samples"] = min(
-                max_train_samples, len(dataset_splits.train_split.dataset)
-            )
+        metrics = train_result.metrics
+        max_train_samples = (
+            data_training_args.max_train_samples
+            if data_training_args.max_train_samples is not None
+            else len(dataset_splits.train_split.dataset)
+        )
+        metrics["train_samples"] = min(
+            max_train_samples, len(dataset_splits.train_split.dataset)
+        )
 
-            trainer.log_metrics("train", metrics)
-            trainer.save_metrics("train", metrics)
-            trainer.save_state()
+        trainer.log_metrics("train", metrics)
+        trainer.save_metrics("train", metrics)
+        trainer.save_state()
 
-        # Evaluation
-        if training_args.do_eval:
-            logger.info("*** Evaluate ***")
+    # Evaluation
+    if training_args.do_eval:
+        logger.info("*** Evaluate ***")
 
-            metrics = trainer.evaluate(
+        metrics = trainer.evaluate(
+            max_length=data_training_args.val_max_target_length,
+            max_time=data_training_args.val_max_time,
+            num_beams=data_training_args.num_beams,
+            metric_key_prefix="eval",
+        )
+        max_val_samples = (
+            data_training_args.max_val_samples
+            if data_training_args.max_val_samples is not None
+            else len(dataset_splits.eval_split.dataset)
+        )
+        metrics["eval_samples"] = min(
+            max_val_samples, len(dataset_splits.eval_split.dataset)
+        )
+
+        trainer.log_metrics("eval", metrics)
+        trainer.save_metrics("eval", metrics)
+
+    # Testing
+    if training_args.do_predict:
+        logger.info("*** Predict ***")
+        for section, test_split in dataset_splits.test_splits.items():
+            results = trainer.predict(
+                test_split.dataset,
+                test_split.examples,
                 max_length=data_training_args.val_max_target_length,
                 max_time=data_training_args.val_max_time,
                 num_beams=data_training_args.num_beams,
-                metric_key_prefix="eval",
+                metric_key_prefix=section,
             )
-            max_val_samples = (
-                data_training_args.max_val_samples
-                if data_training_args.max_val_samples is not None
-                else len(dataset_splits.eval_split.dataset)
-            )
-            metrics["eval_samples"] = min(
-                max_val_samples, len(dataset_splits.eval_split.dataset)
-            )
+            metrics = results.metrics
 
-            trainer.log_metrics("eval", metrics)
-            trainer.save_metrics("eval", metrics)
+            metrics[f"{section}_samples"] = len(test_split.dataset)
 
-        # Testing
-        if training_args.do_predict:
-            logger.info("*** Predict ***")
-            for section, test_split in dataset_splits.test_splits.items():
-                results = trainer.predict(
-                    test_split.dataset,
-                    test_split.examples,
-                    max_length=data_training_args.val_max_target_length,
-                    max_time=data_training_args.val_max_time,
-                    num_beams=data_training_args.num_beams,
-                    metric_key_prefix=section,
-                )
-                metrics = results.metrics
-
-                metrics[f"{section}_samples"] = len(test_split.dataset)
-
-                trainer.log_metrics(section, metrics)
-                trainer.save_metrics(section, metrics)
+            trainer.log_metrics(section, metrics)
+            trainer.save_metrics(section, metrics)
 
 
 if __name__ == "__main__":
