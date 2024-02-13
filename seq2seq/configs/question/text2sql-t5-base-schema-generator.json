@@ -1,7 +1,7 @@
 {
     "overwrite_output_dir": true,
     "run_name": "text2sql-t5-base-schema-generator",
-    "model_name_or_path": "t5-base",
+    "model_name_or_path": "google/t5-efficient-tiny",
     "task_type": "text2sql",
     "use_gold_concepts": false,
     "concept_prediction": false,
@@ -10,7 +10,7 @@
     "overwrite_cache": true,
     "normalize_query": true,
     "learning_rate": 1e-4,
-    "num_train_epochs": 256,
+    "num_train_epochs": 1,
     "per_device_train_batch_size": 16,
     "per_device_eval_batch_size": 16,
     "adafactor": true,
