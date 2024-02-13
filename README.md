@@ -124,7 +124,23 @@ spider_eval_on_splash: Optional[bool] = field(
 )
 ```
 
-To run the training for DestT5, run the following command.
+## Usage
+First, create a `destt5` conda env with the following command.
+
+```
+conda env create --file
+```
+
+### Download Datasets
+This work requires both the Spider dataset and the Splash dataset.
+
+First, download Spider.zip [here](https://drive.google.com/uc?export=download&id=1TqleXec_OykOYFREKKtschzY29dUcVAQ).
+Place this file in `seq2seq/datasets/spider`.
+
+Then 
+
+
+Then, to run the training for DestT5, run the following command.
 
 ```
 python run_seq2seq.py ./configs/question/text2sql-t5-base-schema-generator.json
