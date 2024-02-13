@@ -1,7 +1,7 @@
 {
     "overwrite_output_dir": false,
     "run_name": "text2sql-t5-base-schema-classifier",
-    "model_name_or_path": "t5-base",
+    "model_name_or_path": "t5-small",
     "task_type": "text2sql",
     "use_gold_concepts": false,
     "concept_prediction": false,
@@ -35,7 +35,7 @@
     "schema_serialization_with_db_id": true,
     "schema_serialization_with_db_content": true,
     "target_with_db_id": true,
-    "output_dir": "./final/question/text2sql-t5-base-schema-classifier",
+    "output_dir": "./outputs/question/text2sql-t5-base-schema-classifier",
     "cache_dir": "./transformers_cache",
     "do_train": true,
     "do_eval": true,

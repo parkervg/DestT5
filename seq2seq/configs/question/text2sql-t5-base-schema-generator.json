@@ -1,5 +1,5 @@
 {
-    "overwrite_output_dir": false,
+    "overwrite_output_dir": true,
     "run_name": "text2sql-t5-base-schema-generator",
     "model_name_or_path": "t5-base",
     "task_type": "text2sql",
@@ -23,11 +23,6 @@
         "spider": "./seq2seq/datasets/spider",
         "splash": "./seq2seq/datasets/splash"
     },
-    "use_serialization_file":
-        [
-            "../outputs/destt5-schema-prediction/question/predictions_splash_test.json",
-            "../outputs/destt5-schema-prediction/question/predictions_splash_train.json"
-        ],
     "spider_dataset_url": "../spider/spider.zip",
     "splash_dataset_url": "./splash.zip",
     "source_prefix": "",
@@ -36,7 +31,7 @@
     "schema_serialization_with_db_id": true,
     "schema_serialization_with_db_content": true,
     "target_with_db_id": true,
-    "output_dir": "./final/question/text2sql-t5-base-schema-generator",
+    "output_dir": "./outputs/question/text2sql-t5-base-schema-generator",
     "cache_dir": "./transformers_cache",
     "do_train": true,
     "do_eval": true,

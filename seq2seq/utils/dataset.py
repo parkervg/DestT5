@@ -1,13 +1,14 @@
 import random
 import re
 from dataclasses import dataclass, field
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Dict, List, Optional, Generator
 
 from datasets import interleave_datasets
 from datasets.arrow_dataset import Dataset
 from datasets.dataset_dict import DatasetDict
 from sql_metadata import Parser
-from sql_toolkit import SpiderSQL
+from sqlglot import parse_one, exp
+from sqlglot.optimizer.scope import find_all_in_scope, find_in_scope, build_scope
 from transformers.training_args import TrainingArguments
 
 from .bridge_content_encoder import get_database_matches
@@ -526,6 +527,23 @@ def normalize(sql):
 
     return processing_func(sql)
 
+def _get_scope_nodes(node: exp.Expression, nodetype, restrict_scope: bool = False) -> Generator:
+    """
+    https://github.com/tobymao/sqlglot/blob/v20.9.0/posts/ast_primer.md#scope
+    https://github.com/parkervg/blendsql/blob/quickstart-plus-fixes/blendsql/_sqlglot.py
+    """
+    root = build_scope(node)
+    if restrict_scope:
+        for tablenode in find_all_in_scope(root.expression, nodetype):
+            yield tablenode
+    else:
+        for tablenode in [
+            source
+            for scope in root.traverse()
+            for alias, (node, source) in scope.selected_sources.items()
+            if isinstance(source, nodetype)
+        ]:
+            yield tablenode
 
 def serialize_schema(
     question: str,
@@ -595,16 +613,20 @@ def serialize_schema(
             return column_str_without_values.format(column=column_name_str)
 
     if use_gold_concepts:
-        # Run SpiderSQL.to_gold_concepts to filter down schema
-        # only to those concepts included in gold SQL
-        ssql = SpiderSQL(
-            data_dir="../data/spider/",
-            db_path_fmt="database/{db_id}/{db_id}.sqlite",
-        )
+        # Filter down schema, only to those concepts included in gold SQL
         try:
-            items = ssql.to_gold_concepts(query, db_id=db_id)
-            db_column_names = items.get("db_column_names")
-            db_table_names = items.get("db_table_names")
+            db_column_names = [node.name for node in _get_scope_nodes(
+                    node=parse_one(query),
+                    nodetype=exp.Column,
+                    restrict_scope=False
+                )
+            ]
+            db_table_names = [node.name for node in _get_scope_nodes(
+                    node=parse_one(query),
+                    nodetype=exp.Table,
+                    restrict_scope=False
+                )
+            ]
         except:
             print(f"ERROR: {question}")
     else:

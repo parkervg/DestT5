@@ -125,10 +125,19 @@ spider_eval_on_splash: Optional[bool] = field(
 ```
 
 ## Usage
-First, create a `destt5` conda env with the following command.
+First, clone the repo.
+
+This repo uses submodules, we can install them with the following commands.
 
 ```
-conda env create --file
+git submodule init
+git submodule update
+```
+
+Then, create a `destt5` [conda](https://docs.anaconda.com/free/miniconda/) env with the following command.
+
+```
+conda env create --file env.yml
 ```
 
 ### Download Datasets
@@ -143,6 +152,6 @@ Then
 Then, to run the training for DestT5, run the following command.
 
 ```
-python run_seq2seq.py ./configs/question/text2sql-t5-base-schema-generator.json
+python -m seq2seq.run_seq2seq ./seq2seq/configs/question/text2sql-t5-base-schema-classifier.json
 ```
 

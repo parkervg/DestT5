@@ -8,3 +8,4 @@ transformers==4.17.0
 torch==1.7.0
 cuttlepool==0.9.1
 nltk
+sqlglot
