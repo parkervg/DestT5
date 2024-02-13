@@ -33,7 +33,9 @@ from transformers.models.t5.tokenization_t5_fast import T5TokenizerFast
 from transformers.tokenization_utils_fast import PreTrainedTokenizerFast
 from transformers.trainer_utils import get_last_checkpoint, set_seed
 from transformers.training_args_seq2seq import Seq2SeqTrainingArguments
+import nltk
 
+nltk.download('punkt')
 
 def main() -> None:
     # See all possible arguments by passing the --help flag to this script.
