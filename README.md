@@ -152,6 +152,6 @@ Then
 Then, to run the training for DestT5, run the following command.
 
 ```
-python -m seq2seq.run_seq2seq ./seq2seq/configs/question/text2sql-t5-base-schema-classifier.json
+python -m seq2seq.run_seq2seq ./seq2seq/configs/question/text2sql-t5-base-schema-generator.json
 ```
 
