@@ -2,7 +2,7 @@
     "overwrite_output_dir": true,
     "run_name": "text2sql-t5-base-schema-generator",
     "model_name_or_path": "google/t5-efficient-tiny",
-    "task_type": "text2sql",
+    "task_type": "schema_prediction",
     "use_gold_concepts": false,
     "concept_prediction": false,
     "include_explanation": false,
